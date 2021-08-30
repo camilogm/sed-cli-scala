@@ -6,9 +6,9 @@ import shapes.{CommandExpressions, PrintableTypes, SubstitutionExpression}
 import scala.util.matching.Regex
 
 object VerificationService {
-  private def checkExpressions(expressions: Array[String]): Either[RuntimeException, Array[SubstitutionExpression]] = {
+  private def checkExpressions(expressions: Array[String]): Either[RuntimeException, List[SubstitutionExpression]] = {
     val regex = new Regex("(s)\\/[a-zA-Z|\\\\]+\\/[a-zA-Z]+\\/(g|p|)")
-    val validatedExpressions = expressions.filter((expression) => regex.findAllMatchIn(expression).mkString("") == expression)
+    val validatedExpressions = expressions.filter((expression) => regex.findAllMatchIn(expression).mkString("") == expression).toList
 
     val invalidExpressions = expressions.filter(expression => !validatedExpressions.contains(expression))
     if (invalidExpressions.length > 0) {
@@ -31,7 +31,7 @@ object VerificationService {
     }
   }
 
-  private def validateFlagN(expressions: Array[SubstitutionExpression]): Either[RuntimeException, Array[SubstitutionExpression]] = {
+  private def validateFlagN(expressions: List[SubstitutionExpression]): Either[RuntimeException, List[SubstitutionExpression]] = {
     val expressionsWithP = expressions.filter(_.containsP)
     if (expressionsWithP.length > 0) Right(expressionsWithP)
     else Left(new EmptyExpressionsException)
@@ -44,14 +44,14 @@ object VerificationService {
 
     if (flagN && flagI) Left(new RuntimeException("The command cannot contain flag i and n at the same time"))
     else {
-      val printable = if (flagN) PrintableTypes.Console else PrintableTypes.OverrideFile
+      val printable = if (flagI) PrintableTypes.OverrideFile else PrintableTypes.Console
 
       val commandArgs = args(0)
       val filePath = args(1)
       val result = for {
         expressions <- this.checkExpressions(Array(commandArgs))
         validatedN <- if (flagN) this.validateFlagN(expressions) else Right(expressions)
-        commandExpression <- Right(CommandExpressions(printable, filePath, validatedN))
+        commandExpression <- Right(CommandExpressions(printable, flagN, filePath, validatedN))
       } yield commandExpression
 
       result

@@ -6,8 +6,8 @@ object main extends App{
   val result = for {
     validCommand <- VerificationService.extractCommands(args)
     readFile <- ReadFileService.readFile(validCommand.filePath)
-    sedApply <- SedCases.linesSubstitution(readFile,validCommand.expressions)
-    printable <- PrintableService.printResult(validCommand.flagPrintable,sedApply)
+    sedApply <- SedCases.linesSubstitution(readFile,validCommand.expressions,validCommand.flagN)
+    printable <- PrintableService.printResult(validCommand,sedApply)
   } yield printable
 
   result match {

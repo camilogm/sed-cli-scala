@@ -1,3 +1,3 @@
 package shapes
 
-case class CommandExpressions(flagPrintable: PrintableTypes.Value, filePath: String, expressions: Array[SubstitutionExpression])
+case class CommandExpressions(flagPrintable: PrintableTypes.Value, flagN: Boolean, filePath: String, expressions: List[SubstitutionExpression])
